@@ -30,6 +30,7 @@ require 'rubygems'
 require 'mechanize'
 require 'cgi'
 require 'kconv'
+require 'yaml'
 
 require 'gmail'
 
@@ -40,12 +41,11 @@ def getNews(page, base_url, max)
   flag = false
   
 #  vlist = {"rnk"=>"総合", "rnk_soc"=>"社会", "rnk_pol"=>"政治", "rnk_eco"=>"経済", "rnk_spo"=>"スポーツ", "rnk_int"=>"国際", "rnk_ind"=>"企業", "rnk_afp"=>"ワールドEYE", "rnk_ent"=>"エンタメ"}
-  vlist = {"rnk_soc"=>"社会", "rnk_pol"=>"政治", "rnk_eco"=>"経済", "rnk_spo"=>"スポーツ", "rnk_int"=>"国際", "rnk_ind"=>"企業", "rnk_afp"=>"ワールドEYE", "rnk_ent"=>"エンタメ"}
+  vlist = {"rnk_soc"=>"社会", "rnk_pol"=>"政治", "rnk_eco"=>"経済", "rnk_int"=>"国際", "rnk_ind"=>"企業", "rnk_afp"=>"ワールドEYE", "rnk_ent"=>"エンタメ"}
 
 
   page.search('div.ranking-box').each do |box|
     count = 1
-#    puts entry
     rnk_name = box.search('a').first['name']
     if vlist.key?(rnk_name)
       news << "<h3>#{vlist[rnk_name]}</h3>"
@@ -55,11 +55,10 @@ def getNews(page, base_url, max)
             break
           end
           count += 1
-#          title = entry.inner_text
           url = base_url + entry['href']
 
           linked_page = getPage(url)
-          title = linked_page.search('title')[1].inner_text #.sub(/時事ドットコム：/, "")
+          title = linked_page.search('title').first.inner_text.sub(/時事ドットコム：/, "")
           news << "<a href=\"#{url}\">#{title}</a><p>\n"
         end
       end
@@ -70,7 +69,7 @@ def getNews(page, base_url, max)
 end
 
 def getPage(url)
-  agent = WWW::Mechanize.new
+  agent = Mechanize.new
   page = agent.get(url)
 #  page.body = page.body.toutf8
   return page
@@ -83,10 +82,9 @@ def checkUpdate(page)
   exit
 end
 
-$last_update = ""
-load 'last_update.rb'
-
 mail = ""
+
+$last_update = YAML.load(File.open('status.yaml', 'r')) rescue $last_update = ''
 
 page = getPage('http://www.jiji.com/rss/ranking.rdf')
 update_time = checkUpdate(page)
@@ -94,7 +92,10 @@ update_time = checkUpdate(page)
 page = getPage('http://www.jiji.com/jc/r')
 
 if ($DEBUG || update_time != $last_update)
-  File.open("last_update.rb", "wb") {|file| file.write('$last_update = "' + update_time + '"' + "\n")}
+  if !$DEBUG
+    YAML.dump(update_time, File.open('status.yaml', 'w'))
+    # File.open("last_update.rb", "wb") {|file| file.write('$last_update = "' + update_time + '"' + "\n")}
+  end
   mail << "<html>\n"
   mail << "<head>\n"
   mail << "</head>\n"
