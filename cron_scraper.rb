@@ -84,7 +84,7 @@ end
 
 mail = ""
 
-$last_update = YAML.load(File.open('status.yaml', 'r')) rescue $last_update = ''
+$last_update = YAML.load(File.open('status.yaml', 'r')) rescue ''
 
 page = getPage('http://www.jiji.com/rss/ranking.rdf')
 update_time = checkUpdate(page)
