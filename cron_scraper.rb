@@ -31,8 +31,15 @@ require 'mechanize'
 require 'cgi'
 require 'kconv'
 require 'yaml'
+require 'hpricot'
+#require 'ruby-debug'
 
 require 'gmail'
+
+
+Mechanize.html_parser = Hpricot
+$agent = Mechanize.new
+$agent.post_connect_hooks << lambda{|params| params[:response_body] = Kconv.kconv(params[:response_body], Kconv::UTF8)}
 
 $news_array = Array.new
 
@@ -42,7 +49,6 @@ def getNews(page, base_url, max)
   
 #  vlist = {"rnk"=>"総合", "rnk_soc"=>"社会", "rnk_pol"=>"政治", "rnk_eco"=>"経済", "rnk_spo"=>"スポーツ", "rnk_int"=>"国際", "rnk_ind"=>"企業", "rnk_afp"=>"ワールドEYE", "rnk_ent"=>"エンタメ"}
   vlist = {"rnk_soc"=>"社会", "rnk_pol"=>"政治", "rnk_eco"=>"経済", "rnk_int"=>"国際", "rnk_ind"=>"企業", "rnk_afp"=>"ワールドEYE", "rnk_ent"=>"エンタメ"}
-
 
   page.search('div.ranking-box').each do |box|
     count = 1
@@ -69,9 +75,11 @@ def getNews(page, base_url, max)
 end
 
 def getPage(url)
-  agent = Mechanize.new
-  page = agent.get(url)
-#  page.body = page.body.toutf8
+  page = $agent.get(url)
+#  agent.page.encoding = "euc-jp"
+#  pp page
+#  page.body = page.body.kconv(Kconv::UTF8, Kconv::EUC)
+#  pp page
   return page
 end
 
@@ -110,6 +118,6 @@ plugin_name = "jiji_tsushin"
 if mail != ""
   gmail = Gmail.new(ENV['GMAIL_USERNAME'], ENV['GMAIL_PASSWORD'], ENV['GMAIL_ADDRESS'])
   gmail.subject = "cron_scraper.rb #{plugin_name} #{update_time}"
-  gmail.message = mail.tosjis.tojis
+  gmail.message = mail.tojis
   gmail.send_html(ENV['GMAIL_ADDRESS'])
 end
