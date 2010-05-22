@@ -39,7 +39,7 @@ require 'gmail'
 
 Mechanize.html_parser = Hpricot
 $agent = Mechanize.new
-$agent.post_connect_hooks << lambda{|params| params[:response_body] = Kconv.kconv(params[:response_body], Kconv::UTF8)}
+$agent.post_connect_hooks << lambda {|params| params[:response_body] = Kconv.kconv(params[:response_body], Kconv::UTF8)}
 
 $news_array = Array.new
 
@@ -75,12 +75,7 @@ def getNews(page, base_url, max)
 end
 
 def getPage(url)
-  page = $agent.get(url)
-#  agent.page.encoding = "euc-jp"
-#  pp page
-#  page.body = page.body.kconv(Kconv::UTF8, Kconv::EUC)
-#  pp page
-  return page
+  return $agent.get(url)
 end
 
 def checkUpdate(page)
@@ -102,7 +97,6 @@ page = getPage('http://www.jiji.com/jc/r')
 if ($DEBUG || update_time != $last_update)
   if !$DEBUG
     YAML.dump(update_time, File.open('status.yaml', 'w'))
-    # File.open("last_update.rb", "wb") {|file| file.write('$last_update = "' + update_time + '"' + "\n")}
   end
   mail << "<html>\n"
   mail << "<head>\n"
