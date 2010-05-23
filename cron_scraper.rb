@@ -32,8 +32,11 @@ require 'cgi'
 require 'kconv'
 require 'yaml'
 require 'hpricot'
-#require 'ruby-debug'
-
+if $DEBUG
+require 'ruby-debug'
+require 'ruby-prof'
+require 'pp'
+end
 require 'gmail'
 
 
@@ -44,6 +47,7 @@ $agent.post_connect_hooks << lambda {|params| params[:response_body] = Kconv.kco
 $news_array = Array.new
 
 def getNews(page, base_url, max)
+# prof = RubyProf.profile do
   news = ""
   flag = false
   
@@ -70,6 +74,9 @@ def getNews(page, base_url, max)
       end
     end
   end
+# end
+# printer = RubyProf::FlatPrinter.new(prof)
+# printer.print(STDOUT, 0)
 
   return news
 end
@@ -87,14 +94,14 @@ end
 
 mail = ""
 
-$last_update = YAML.load(File.open('status.yaml', 'r')) rescue ''
+$last_update_time = YAML.load_file('status.yaml') rescue nil
 
 page = getPage('http://www.jiji.com/rss/ranking.rdf')
-update_time = checkUpdate(page)
+update_time = Time.parse(checkUpdate(page))
 
 page = getPage('http://www.jiji.com/jc/r')
 
-if ($DEBUG || update_time != $last_update)
+if ($DEBUG || $last_update_time == nil || update_time > $last_update_time)
   if !$DEBUG
     YAML.dump(update_time, File.open('status.yaml', 'w'))
   end
