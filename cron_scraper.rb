@@ -86,3 +86,9 @@ public
     tear_down(@page)
   end
 end
+
+# set_trace_func lambda { |event, file, line ,id, binding, classname|
+#   if event == 'call' && id == :get_page
+#     puts "#{file}:#{line} entering method #{id}"
+#   end
+# }
