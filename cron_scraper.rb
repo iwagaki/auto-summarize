@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# 環境変数
+# Environment Variables:
 #   GMAIL_USERNAME
 #   GMAIL_PASSWORD
 #   GMAIL_ADDRESS
@@ -39,86 +39,50 @@ require 'pp'
 end
 require 'gmail'
 
+class ScraperBase
+public
+  def get_page(url)
+    return @agent.get(url)
+  end
 
-Mechanize.html_parser = Hpricot
-$agent = Mechanize.new
-$agent.post_connect_hooks << lambda {|params| params[:response_body] = Kconv.kconv(params[:response_body], Kconv::UTF8)}
-
-$news_array = Array.new
-
-def getNews(page, base_url, max)
-# prof = RubyProf.profile do
-  news = ""
-  flag = false
+  def get_yaml_file
+    return get_file.gsub(/\.rb/, '') + '.yaml'
+  end
   
-#  vlist = {"rnk"=>"総合", "rnk_soc"=>"社会", "rnk_pol"=>"政治", "rnk_eco"=>"経済", "rnk_spo"=>"スポーツ", "rnk_int"=>"国際", "rnk_ind"=>"企業", "rnk_afp"=>"ワールドEYE", "rnk_ent"=>"エンタメ"}
-  vlist = {"rnk_soc"=>"社会", "rnk_pol"=>"政治", "rnk_eco"=>"経済", "rnk_int"=>"国際", "rnk_ind"=>"企業", "rnk_afp"=>"ワールドEYE", "rnk_ent"=>"エンタメ"}
+  def run
+    Mechanize.html_parser = Hpricot
+    @agent = Mechanize.new
+    @agent.post_connect_hooks << lambda {|params| params[:response_body] = Kconv.kconv(params[:response_body], Kconv::UTF8)}
+    @news_array = Array.new
+    mail = ""
 
-  page.search('div.ranking-box').each do |box|
-    count = 1
-    rnk_name = box.search('a').first['name']
-    if vlist.key?(rnk_name)
-      news << "<h3>#{vlist[rnk_name]}</h3>"
-      box.search('a').each do |entry|
-        if entry['name'] == nil
-          if count > max
-            break
-          end
-          count += 1
-          url = base_url + entry['href']
+    $last_update_time = YAML.load_file(get_yaml_file) rescue nil
 
-          linked_page = getPage(url)
-          title = linked_page.search('title').first.inner_text.sub(/時事ドットコム：/, "")
-          news << "<a href=\"#{url}\">#{title}</a><p>\n"
-        end
+    @page = tear_up
+    update_time = check_update(@page)
+
+    if ($DEBUG || $last_update_time == nil || update_time > $last_update_time)
+      mail = scrape(@page)
+
+      if !$DEBUG
+        YAML.dump(update_time, File.open(get_yaml_file, 'w'))
       end
+      mail << "<html>\n"
+      mail << "<head>\n"
+      mail << "</head>\n"
+      mail << "<body>\n"
+      mail << mail
+      mail << "</body>\n"
+      mail << "</html>\n"
     end
+    
+    if mail != ""
+      gmail = Gmail.new(ENV['GMAIL_USERNAME'], ENV['GMAIL_PASSWORD'], ENV['GMAIL_ADDRESS'])
+      gmail.subject = "cron_scraper #{get_name} #{update_time.strftime('%Y-%m-%d %H:%M')}"
+      gmail.message = mail.tojis
+      gmail.send_html(ENV['GMAIL_ADDRESS'])
+    end
+
+    tear_down(@page)
   end
-# end
-# printer = RubyProf::FlatPrinter.new(prof)
-# printer.print(STDOUT, 0)
-
-  return news
-end
-
-def getPage(url)
-  return $agent.get(url)
-end
-
-def checkUpdate(page)
-  if page.body =~ /^<dc:date>(.*)<\/dc:date>/
-    return $+
-  end
-  exit
-end
-
-mail = ""
-
-$last_update_time = YAML.load_file('status.yaml') rescue nil
-
-page = getPage('http://www.jiji.com/rss/ranking.rdf')
-update_time = Time.parse(checkUpdate(page))
-
-page = getPage('http://www.jiji.com/jc/r')
-
-if ($DEBUG || $last_update_time == nil || update_time > $last_update_time)
-  if !$DEBUG
-    YAML.dump(update_time, File.open('status.yaml', 'w'))
-  end
-  mail << "<html>\n"
-  mail << "<head>\n"
-  mail << "</head>\n"
-  mail << "<body>\n"
-  mail << getNews(page, 'http://www.jiji.com/jc/', 20)
-  mail << "</body>\n"
-  mail << "</html>\n"
-end
-
-plugin_name = "jiji_tsushin"
-
-if mail != ""
-  gmail = Gmail.new(ENV['GMAIL_USERNAME'], ENV['GMAIL_PASSWORD'], ENV['GMAIL_ADDRESS'])
-  gmail.subject = "cron_scraper.rb #{plugin_name} #{update_time}"
-  gmail.message = mail.tojis
-  gmail.send_html(ENV['GMAIL_ADDRESS'])
 end
