@@ -1,7 +1,7 @@
 #!/usr/bin/ruby -Ku
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 iwagaki <iwagaki@users.sourceforge.net>
+# Copyright (c) 2010 iwagaki@users.sourceforge.net
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
