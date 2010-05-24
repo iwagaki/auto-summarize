@@ -4,7 +4,7 @@
 $LOAD_PATH.push(File.dirname(File.expand_path(__FILE__)) + '/..')
 require 'cron_scraper'
 
-class TestCase < ScraperBase
+class TestCase < Scraper
   def initialize
     @mail = ''
   end

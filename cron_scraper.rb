@@ -39,7 +39,7 @@ require 'pp'
 end
 require 'gmail'
 
-class ScraperBase
+class Scraper
 public
   def get_page(url)
     return @agent.get(url)
