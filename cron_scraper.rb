@@ -41,6 +41,18 @@ require 'gmail'
 
 class Scraper
 public
+  def get_file
+    return __FILE__
+  end
+
+  def get_name
+    return 'Undefined'
+  end
+
+  def is_html?
+    return true
+  end
+
   def get_page(url)
     return @agent.get(url)
   end
@@ -49,6 +61,17 @@ public
     return get_file.gsub(/\.rb/, '') + '.yaml'
   end
   
+  def tear_up
+    raise
+  end
+
+  def scrape(page)
+    raise
+  end
+
+  def tear_down(page)
+  end
+
   def run
     Mechanize.html_parser = Hpricot
     @agent = Mechanize.new

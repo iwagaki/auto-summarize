@@ -5,20 +5,8 @@ $LOAD_PATH.push(File.dirname(File.expand_path(__FILE__)) + '/..')
 require 'cron_scraper'
 
 class TestCase < Scraper
-  def initialize
-    @mail = ''
-  end
-
-  def get_file
-    return __FILE__
-  end
-
   def get_name
     return '4gamer'
-  end
-
-  def is_html?
-    return true
   end
 
   def tear_up
@@ -26,6 +14,7 @@ class TestCase < Scraper
   end
 
   def check_update(page)
+    @mail = ''
     this_update = nil
 
     page.search('div').each do |entry|
@@ -52,10 +41,6 @@ class TestCase < Scraper
   def scrape(page)
     return @mail
   end
-
-  def tear_down(page)
-  end
-
 end
 
 runner = TestCase.new

@@ -7,16 +7,8 @@ require 'cron_scraper'
 class TestCase < Scraper
   MAX_NUM_OF_ARTICLES = 20
 
-  def get_file
-    return __FILE__
-  end
-
   def get_name
     return 'Jiji'
-  end
-
-  def is_html?
-    return true
   end
 
   def tear_up
@@ -64,10 +56,6 @@ class TestCase < Scraper
 
     return news
   end
-
-  def tear_down(page)
-  end
-
 end
 
 runner = TestCase.new
