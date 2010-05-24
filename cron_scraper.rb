@@ -54,7 +54,7 @@ public
     @agent = Mechanize.new
     @agent.post_connect_hooks << lambda {|params| params[:response_body] = Kconv.kconv(params[:response_body], Kconv::UTF8)}
     @news_array = Array.new
-    mail = ""
+    mail = ''
 
     $last_update_time = YAML.load_file(get_yaml_file) rescue nil
 
@@ -62,8 +62,6 @@ public
     update_time = check_update(@page)
 
     if ($DEBUG || $last_update_time == nil || update_time > $last_update_time)
-      mail = scrape(@page)
-
       if !$DEBUG
         YAML.dump(update_time, File.open(get_yaml_file, 'w'))
       end
@@ -71,7 +69,7 @@ public
       mail << "<head>\n"
       mail << "</head>\n"
       mail << "<body>\n"
-      mail << mail
+      mail << scrape(@page)
       mail << "</body>\n"
       mail << "</html>\n"
     end
