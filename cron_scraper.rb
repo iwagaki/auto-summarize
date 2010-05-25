@@ -42,7 +42,7 @@ require 'gmail'
 class Scraper
 public
   def get_file
-    return __FILE__
+    return $0
   end
 
   def get_name
@@ -83,12 +83,12 @@ public
     @news_array = Array.new
     mail = ''
 
-    $last_update_time = YAML.load_file(get_yaml_file) rescue nil
+    @last_update_time = YAML.load_file(get_yaml_file) rescue nil
 
     @page = tear_up
     update_time = check_update(@page)
 
-    if ($DEBUG || $last_update_time == nil || update_time > $last_update_time)
+    if ($DEBUG || @last_update_time == nil || update_time > @last_update_time)
       if !$DEBUG
         YAML.dump(update_time, File.open(get_yaml_file, 'w'))
       end
