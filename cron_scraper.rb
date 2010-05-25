@@ -72,6 +72,10 @@ public
   def tear_down(page)
   end
 
+  def time_to_s(time)
+    return time.strftime('%Y-%m-%d %H:%M')
+  end
+
   def run
     Mechanize.html_parser = Hpricot
     @agent = Mechanize.new
@@ -99,7 +103,7 @@ public
     
     if mail != ""
       gmail = Gmail.new(ENV['GMAIL_USERNAME'], ENV['GMAIL_PASSWORD'], ENV['GMAIL_ADDRESS'])
-      gmail.subject = "cron_scraper #{get_name} #{update_time.strftime('%Y-%m-%d %H:%M')}"
+      gmail.subject = "cron_scraper #{get_name} #{time_to_s(update_time)}"
       gmail.message = mail.tojis
       gmail.send_html(ENV['GMAIL_ADDRESS'])
     end
