@@ -1,0 +1,7 @@
+== TESTING ENVIRONMENT
+* Ruby 1.8.7
+* mechanize-1.0.0
+* nokogiri-1.4.2
+
+== LICENSE
+* The MIT Licenese
