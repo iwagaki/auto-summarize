@@ -39,6 +39,19 @@ require 'pp'
 end
 require 'gmail'
 
+# class Mechanize
+#   class Form
+#     class Field
+#       def <=> other
+#         return 0 if self == other
+#         return 1 if Hash === node
+#         return -1 if Hash === other.node
+#         return nil
+#       end
+#     end
+#   end
+# end
+
 class Scraper
 public
   def get_file
@@ -77,9 +90,19 @@ public
   end
 
   def run
-    Mechanize.html_parser = Hpricot
+    # Nokogiri-1.4.2
+#    Mechanize.html_parser = Hpricot
     @agent = Mechanize.new
-    @agent.post_connect_hooks << lambda {|params| params[:response_body] = Kconv.kconv(params[:response_body], Kconv::UTF8)}
+    @agent.post_connect_hooks << lambda {|params|
+      params[:response_body] = Kconv.kconv(params[:response_body], Kconv::UTF8)
+    }
+
+    if __FILE__ == $0
+      page = get_page('http://www.jiji.com/jc/r')
+      pp page
+      exit
+    end
+
     @news_array = Array.new
     mail = ''
 
@@ -117,3 +140,8 @@ end
 #     puts "#{file}:#{line} entering method #{id}"
 #   end
 # }
+
+if __FILE__ == $0
+  test = Scraper.new
+  test.run
+end
