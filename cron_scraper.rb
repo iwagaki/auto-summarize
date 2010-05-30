@@ -115,19 +115,21 @@ public
       if !$DEBUG
         YAML.dump(update_time, File.open(get_yaml_file, 'w'))
       end
-      mail << "<html>\n"
-      mail << "<head>\n"
-      mail << "</head>\n"
-      mail << "<body>\n"
       mail << scrape(@page)
-      mail << "</body>\n"
-      mail << "</html>\n"
     end
     
     if mail != ""
+      html_mail = "<html>\n"
+      html_mail << "<head>\n"
+      html_mail << "</head>\n"
+      html_mail << "<body>\n"
+      html_mail << mail
+      html_mail << "</body>\n"
+      html_mail << "</html>\n"
+
       gmail = Gmail.new(ENV['GMAIL_USERNAME'], ENV['GMAIL_PASSWORD'], ENV['GMAIL_ADDRESS'])
       gmail.subject = "cron_scraper #{get_name} #{time_to_s(update_time)}"
-      gmail.message = mail.tojis
+      gmail.message = html_mail.tojis
       gmail.send_html(ENV['GMAIL_ADDRESS'])
     end
 
