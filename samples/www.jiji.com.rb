@@ -48,7 +48,9 @@ class TestCase < Scraper
 
             linked_page = get_page(url)
             title = linked_page.search('title').first.inner_text.sub(/時事ドットコム：/, "")
-            news << "<a href=\"#{url}\">#{title}</a><p>\n"
+            if title != '時事ドットコム'
+              news << "<a href=\"#{url}\">#{title}</a><p>\n"
+            end
           end
         end
       end
