@@ -6,8 +6,13 @@ require 'cron_scraper'
 require 'rss'
 
 class TestCase < Scraper
-  def initialize(uri)
+  def initialize(uri, yaml_name)
     @uri = uri
+    @yaml_name = yaml_name
+  end
+
+  def get_file
+    return @yaml_name
   end
 
   def get_name
@@ -22,7 +27,7 @@ class TestCase < Scraper
   end
 
   def check_update(page)
-    return page.items.first.pubDate
+    return page.items.first.date
   end
   
   def scrape(page)
@@ -34,11 +39,12 @@ class TestCase < Scraper
   end
 end
 
-URIs = [
-        # 'http://0xcc.net/blog/index.rdf'
-       ]
+URIs = {
+  'uri1' => 'http://0xcc.net/blog/index.rdf',
+  'uri2' => 'http://feeds.delicious.com/v2/rss/network/iwagaki?count=100',
+}
 
-URIs.each do |uri|
-  runner = TestCase.new(uri)
+URIs.each do |key, uri|
+  runner = TestCase.new(uri, $0 + '-' + key)
   runner.run
 end
