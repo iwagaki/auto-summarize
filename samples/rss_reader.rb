@@ -33,7 +33,11 @@ class TestCase < Scraper
   end
 
   def check_update(page)
-    return page.items.first.date
+    if page.items.first.date == nil
+      return Time.now
+    else
+      return page.items.first.date
+    end
   end
   
   def scrape(page)
