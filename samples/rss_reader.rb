@@ -5,6 +5,12 @@ $LOAD_PATH.push(File.dirname(File.expand_path(__FILE__)) + '/..')
 require 'cron_scraper'
 require 'rss'
 
+require 'rss_uri'
+# URIs = {
+#   'uri1' => 'http://0xcc.net/blog/index.rdf',
+#   'uri2' => 'http://feeds.feedburner.com/japantimes_news',
+# }
+
 class TestCase < Scraper
   def initialize(uri, yaml_name)
     @uri = uri
@@ -38,11 +44,6 @@ class TestCase < Scraper
     return news
   end
 end
-
-URIs = {
-  'uri1' => 'http://0xcc.net/blog/index.rdf',
-  'uri2' => 'http://feeds.delicious.com/v2/rss/network/iwagaki?count=100',
-}
 
 URIs.each do |key, uri|
   runner = TestCase.new(uri, $0 + '-' + key)
