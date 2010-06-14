@@ -42,8 +42,9 @@ class TestCase < Scraper
   
   def scrape(page)
     news = ''
+    news << "<b>#{@uri}</b><br><br>"
     page.items.each do |item|
-      news << "<a href=\"#{item.link}\">#{item.title}</a><p>\n"
+      news << "<a href=\"#{item.link}\">#{item.title}</a><br>\n"
     end
     return news
   end
