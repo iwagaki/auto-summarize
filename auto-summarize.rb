@@ -89,7 +89,7 @@ class Period
   attr_accessor :start, :update, :end
 end
 
-class Scraper
+class AutoSummarize
 public
   def get_file
     return $0
@@ -229,6 +229,6 @@ end
 # }
 
 if __FILE__ == $0
-  test = Scraper.new
+  test = AutoSummarize.new
   test.run
 end

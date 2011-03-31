@@ -4,7 +4,7 @@
 $LOAD_PATH.push(File.dirname(File.expand_path(__FILE__)) + '/..')
 require 'auto-summarize'
 
-class TestCase < Scraper
+class TestCase < AutoSummarize
   def get_name
     return '4gamer'
   end
