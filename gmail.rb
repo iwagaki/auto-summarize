@@ -74,11 +74,15 @@ EOB
 Content-Type: multipart/related; boundary="boundary-here--"
 
 --boundary-here--
-Content-Type: text/html; charset="ISO-2022-JP"
+Content-Type: text/html; charset="iso-2022-jp"
+Content-Transfer-Encoding: 7bit
 EOB
     return content
   end
 end
+#Content-Type: text/html; charset="UTF-8"
+#Content-Type: text/html; charset="Shift_JIS"
+
 
 # if __FILE__ == $0
 #   Gmail.send("Gmail_account_name", "Gmail_password", "From_address", "To_address", "Subject", "Body")

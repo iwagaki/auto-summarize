@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 $LOAD_PATH.push(File.dirname(File.expand_path(__FILE__)) + '/..')
-require 'cron_scraper'
+require 'auto-summarize'
 
 class TestCase < Scraper
   def get_name
@@ -14,15 +14,24 @@ class TestCase < Scraper
   end
 
   def check_update(page)
-    @mail = ''
+    @links = Array.new
     this_update = nil
+    weight = 0;
 
     page.search('div').each do |entry|
       if entry['class'] == "container"
         url = 'http://www.4gamer.net' + entry.search('a').first['href']
         title = entry.search('a').inner_text.gsub(/^\s+/, '')
-        @mail << "<a href=\"#{url}\">#{url}</a><br>\n"
-        @mail << "#{title}<br><br>\n"
+
+        link = Link.new
+        link.title = title
+        link.url = url
+        link.description = nil
+        link.rank = 10 - weight
+        link.category = 'Daily'
+
+        @links.push(link)
+        weight += 1
       elsif entry['class'].to_s == 'period'
         this_update = entry.inner_text
         break
@@ -38,8 +47,12 @@ class TestCase < Scraper
     return Time.local(year, month, day)
   end
 
-  def scrape(page)
-    return @mail
+  def get_links(page)
+    return @links
+  end
+
+  def get_freq()
+    return 3*24*60*60
   end
 end
 
