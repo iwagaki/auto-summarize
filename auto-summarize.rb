@@ -123,6 +123,10 @@ public
     return 24 * 60 * 60
   end
 
+  def get_max_num_of_links
+    return 10
+  end
+
   def scrape(page)
     raise
   end
@@ -166,10 +170,12 @@ public
       for link in @new_links
         if @links_hash.has_key?(link.url)
           old_rank = @links_hash[link.url].rank
-          link.rank += rank
+          link.rank += old_rank
         end
         @links_hash[link.url] = link
       end
+
+      @scheduled_time.update = update_time
     end
 
     now = Time.now
@@ -178,7 +184,7 @@ public
         b[1].rank <=> a[1].rank
       }
 
-      for link in ranked_links
+      for link in ranked_links[0, get_max_num_of_links()]
         mail << "<a href=\"#{link[1].url}\">#{link[1].url}</a> (#{link[1].rank} pts)<br>\n"
         mail << "#{link[1].title}<br><br>\n"
       end

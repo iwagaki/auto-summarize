@@ -54,6 +54,10 @@ class TestCase < AutoSummarize
   def get_freq()
     return 3*24*60*60
   end
+
+  def get_max_num_of_links()
+    return 10
+  end
 end
 
 runner = TestCase.new
