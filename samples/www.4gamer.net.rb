@@ -24,11 +24,11 @@ class TestCase < AutoSummarize
         title = entry.search('a').inner_text.gsub(/^\s+/, '')
 
         link = Link.new
-        link.title = title
+        link.title = url
         link.url = url
-        link.description = nil
+        link.description = title
         link.rank = 10 - weight
-        link.category = 'Daily'
+        link.category = nil
 
         @links.push(link)
         weight += 1
@@ -51,11 +51,11 @@ class TestCase < AutoSummarize
     return @links
   end
 
-  def get_freq()
-    return 7*24*60*60
+  def get_freq
+    return [0, 0, 0]
   end
 
-  def get_max_num_of_links()
+  def get_max_num_of_links
     return 10
   end
 end

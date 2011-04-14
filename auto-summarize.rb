@@ -119,8 +119,13 @@ public
     raise
   end
 
+  def get_categories
+    return [nil]
+  end
+
   def get_freq
-    return 24 * 60 * 60
+    # [wday [0:Sun - 6:Sat], hour, min]
+    return [0, 0, 0]
   end
 
   def get_max_num_of_links
@@ -184,9 +189,33 @@ public
         b[1].rank <=> a[1].rank
       }
 
-      for link in ranked_links[0, get_max_num_of_links()]
-        mail << "<a href=\"#{link[1].url}\">#{link[1].url}</a> (#{link[1].rank} pts)<br>\n"
-        mail << "#{link[1].title}<br><br>\n"
+      categories = get_categories
+
+      for category in categories
+        if category != nil
+          mail << "<b>#{category}</b><br><br>\n"
+        end
+        
+        count = 0
+        for link in ranked_links
+          # link[0] = key
+          # link[1] = value
+
+          if count >= get_max_num_of_links
+            break
+          end
+
+          if category == nil || link[1].category == category
+            mail << "<a href=\"#{link[1].url}\">#{link[1].title}</a> (#{link[1].rank} pts)<br>\n"
+            if link[1].description != nil
+              mail << "#{link[1].description}<br>\n"
+            end
+            mail << "<br>\n"
+            count += 1
+          end
+        end
+
+        mail << "<br><br>\n"
       end
 
       if mail != ""
@@ -208,8 +237,18 @@ public
         gmail.send_html(ENV['GMAIL_ADDRESS'])
       end
 
-      @scheduled_time.end = Time.local(now.year, now.month, now.day, 0, 0, 0)
-      @scheduled_time.end += get_freq
+      sched_day = now.day
+      candidate = Time.local(now.year, now.month, now.day, get_freq[1], get_freq[2], 0)
+      if now.wday == get_freq[0]
+        if candidate < now
+          candidate += 7*24*60*60
+        end
+      elsif now.wday < get_freq[0]
+        candidate += (get_freq[0] - now.wday)*24*60*60
+      else
+        candidate += (7 - (now.wday - get_freq[0]))*24*60*60
+      end
+      @scheduled_time.end = candidate
       @scheduled_time.start = update_time
       @links_hash.clear
     end
