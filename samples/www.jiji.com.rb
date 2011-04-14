@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 $LOAD_PATH.push(File.dirname(File.expand_path(__FILE__)) + '/..')
-require 'cron_scraper'
+require 'auto-summarize'
 
-class TestCase < Scraper
-  MAX_NUM_OF_ARTICLES = 20
+class TestCase < AutoSummarize
+  MAX_NUM_OF_ARTICLES = 10
 
   def get_name
     return 'Jiji'
@@ -23,7 +23,9 @@ class TestCase < Scraper
     exit
   end
   
-  def scrape(page)
+  def get_links(page)
+    links = Array.new
+
     page = get_page('http://www.jiji.com/jc/r')
     base_url = 'http://www.jiji.com/jc/'
     
@@ -34,29 +36,47 @@ class TestCase < Scraper
     vlist = {"rnk_soc"=>"社会", "rnk_pol"=>"政治", "rnk_eco"=>"経済", "rnk_int"=>"国際", "rnk_ind"=>"企業", "rnk_afp"=>"ワールドEYE", "rnk_ent"=>"エンタメ"}
 
     page.search('div.ranking-box').each do |box|
-      count = 1
+      count = 0
       rnk_name = box.search('a').first['name']
       if vlist.key?(rnk_name)
         news << "<h3>#{vlist[rnk_name]}</h3>"
         box.search('a').each do |entry|
           if entry['name'] == nil
-            if count > MAX_NUM_OF_ARTICLES
+            if count >= MAX_NUM_OF_ARTICLES
               break
             end
-            count += 1
             url = base_url + entry['href']
 
             linked_page = get_page(url)
             title = linked_page.search('title').first.inner_text.sub(/時事ドットコム：/, "")
             if title != '時事ドットコム'
-              news << "<a href=\"#{url}\">#{title}</a><p>\n"
+              link = Link.new
+              link.title = title
+              link.url = url
+              link.description = nil
+              link.rank = MAX_NUM_OF_ARTICLES - count
+              link.category = vlist[rnk_name]
+              p link
+              links.push(link)
             end
+            count += 1
           end
         end
       end
     end
+    return links
+  end
 
-    return news
+  def get_freq
+    return [0, 0, 0]
+  end
+
+  def get_max_num_of_links
+    return 10
+  end
+
+  def get_categories
+    return ["社会", "政治", "経済", "国際", "企業", "ワールドEYE", "エンタメ"]
   end
 end
 
