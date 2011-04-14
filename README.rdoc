@@ -4,9 +4,9 @@ Hot list of the popular articles is useful for the person who has no room to
 read every entry on RSS or News sites. However, the number of articles in hot
 list or updating period sometimes does not match what we expect. This script
 can convert a service-defined hot list to a hot list with expected number of
-articles by expected period. For example, if we cannot read daily top 10
-popular links in www.4gamer.net, I can get "weekly" top "20" popular links
-by using the script.
+articles by expected period. For example, if you don't have time to read
+daily top 10 popular links in www.4gamer.net, you can get "weekly" top "20"
+popular links by using the script.
 
 == TESTING ENVIRONMENT
 * Ruby 1.8.7
