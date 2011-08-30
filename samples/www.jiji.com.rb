@@ -16,7 +16,7 @@ class TestCase < AutoSummarize
   end
 
   def check_update(page)
-    if page.body =~ /^<dc:date>(.*)<\/dc:date>/
+    if page.body =~ /<dc:date>(.*)<\/dc:date>/
       return Time.parse($+)
     end
     puts "Error: failed to get updated timestamp"
